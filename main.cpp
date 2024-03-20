@@ -1,58 +1,103 @@
 #include <iostream>
-#include <cstdlib>
-#include <vector>
 using namespace std;
 
-string select_word();
-void display_blanks(string &word);
-void player_guess(char choice, string &word);
-void update_choice(char choice, string &word, int pos);
 
-/*
- * 1. Word selection: Create an array of strings and choose randomly.
- * 2. Blanks Display: Display the underscores with same number of characters.
- * 3. Guess Tracker: Create an integer variable and count the times the player has guessed.
- * 4. Update Display: Each time the player guesses the correct character,
- * an underscore disappears and gets replaced with the correct character.
- * 5. Win\Lose Check: Check if the player has guessed all characters.
- * 6. Ask for another Trial using loop.
- */
-int main() {
-    string word = "Bed";
-    display_blanks(word);
-    player_guess('e', word);
-    display_blanks(word);
-    return 0;
-}
-string select_word() {
-    vector<string> list_words {"Sunshine", "Bicycle", "Adventure", "Symphony", "Pineapple",
-                             "Bed", "Electronics", "Jacket", "Wall", "Perfume"};
-
-    srand(time(0));
-    int choice = rand() % 10;
-
-    return list_words.at(choice);
-}
-
-void display_blanks(string &word){
-//    string word = select_word();
-    for(int i{0}; i < word.size(); i++) {
-        cout << " _ ";
+void heap(int ex[], int i){
+    int n = sizeof ex / sizeof ex[0];
+    if (2 * i <= n){            // check
+        heap(ex, 2 * i);
+        heap(ex, (2 * i) + 1);
+        if (ex[2 * i] > ex[i] && ex[2 * i] > ex[(2 * i) + 1]){
+            int t4 = ex[(2 * i) + 1];
+            ex[(2 * i) + 1] = ex[i];
+            ex[i] = t4;
+            heap(ex, 2 * i);
+        }
+        else if (ex[(2 * i) + 1] > ex[i] && ex[(2 * i) + 1] > ex[2 * i]){
+            int t5 = ex[(2 * i) + 1];
+            ex[(2 * i) + 1] = ex[i];
+            ex[i] = t5;
+            heap(ex, (2 * i) + 1);
+        }
     }
 }
+// Stage 2
+void heap_sort(int ex[]){
+    int n = sizeof ex / sizeof ex[0];
+    for (int i = 1; i < n; i++){
+        int t1 = ex[1];
+        ex[1] = ex[n - i + 1];
+        ex[n - i + 1] = t1;
+        int j = 1;
 
-void player_guess(char choice, string &word){
-    int i;
-    for(i = 0; i < word.size(); i++) {
-        if (word[i] == choice) {
-            cout << "\nCorrect!" << endl;
-            update_choice(choice, word, i);
-            break;
+        while(2 * j <= n - i){
+            if(ex[2 * j] > ex[j] && ex[2 * j] > ex[(2 * j) + 1]){
+                int t2 = ex[2 * j];
+                ex[2 * j] = ex[j];
+                ex[j]  = t2;
+                j = 2 * j;
+            }
+            else if(ex[(2 * j) + 1] > ex[j] && ex[(2 * j) + 1] > ex[2 * j]){
+                int t3 = ex[(2 * j) + 1];
+                ex[(2 * j) + 1] = ex[j];
+                ex[j] = t3;
+                j = (2 * j) + 1;
+            }
         }
     }
 }
 
-void update_choice(char choice, string &word, int pos){
-     word[pos] = choice;
-     return word;
+void print_arr(int ex[], int n){
+    cout << "Sorted array is [";
+    for(int i = 1; i <= n; i++)
+        cout << ex[i] << " ";
+    cout << "]";
+}
+
+void go(int i, int n, int G[][], int visited[], int finished[], int stage[]){
+    visited[i] = 1;
+    for(int j = 1; j <= n; j++){
+        if(G[j][i] == 1)
+            if(visited[j] == 1)
+                if(finished[j] == 0)
+                    break;
+        else
+            go(i, n, G, visited, finished, stage);
+        if(stage[i] <= stage[j])
+            stage[i] = stage[j] + 1;
+    }
+    finished[i] = 1;
+}
+
+void top_sort(int G[][], int n){
+    int visited[] {}, finished[] {}, stage[] {}, out[] {};
+    for(int i = 1; i <= n; i++) visited[i] = 0;
+    for(int i = 1; i <= n; i++) finished[i] = 0;
+    for(int i = 1; i <= n; i++) stage[i] = 1;
+    for(int i = 1; i <= n; i++) out[i] = 0;
+
+    for(int i = 1; i <= n; i++){
+        for(int j = 1; j <= n; j++){
+            if(G[i][j] == 1)
+                out[i] = out[i] + 1;
+        }
+    }
+
+    for(int i = 1; i <= n; i++){
+        if(out[i] == 0)
+            go(i, n, G, visited, finished, stage);
+    }
+}
+int main() {
+    int arr[] {10,2,8,4,6};
+    for(int i {0}; i < 5; i++){
+        arr[i] = 0;
+    }
+
+    cout << "["
+    for(int i: arr)
+        cout << i << " ";
+    cout << "]" << endl;
+
+    return 0;
 }
